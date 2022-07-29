@@ -26,5 +26,75 @@
 
   basemap.addTo(map);
 
+  fetch ('https://api.data.gov.sg/v1/environment/psi')
+                .then(response => response.json())
+                .then(data =>  {
+                    console.log(data);
+                    let item=data.items[0].readings;
+                    date = data.items[0].update_timestamp
+                    //date = date.split("T")
+                    //time = date[1].split("+")
+                    newdate =  new Date(date)
+                    //console.log(item[i].psi_twenty_four_hourly.west)
+                    no_of_rows =Object.keys(item).length
+
+                    centralpsi= item.psi_twenty_four_hourly.central
+                    northpsi = item.psi_twenty_four_hourly.north
+                    southpsi = item.psi_twenty_four_hourly.south
+                    eastpsi = item.psi_twenty_four_hourly.east
+                    westpsi = item.psi_twenty_four_hourly.west
+
+                    westloc = data.region_metadata[0].label_location
+                    eastloc = data.region_metadata[2].label_location
+                    centralloc = data.region_metadata[3].label_location
+                    southloc = data.region_metadata[4].label_location
+                    northloc = data.region_metadata[5].label_location
+
+                    makemarker(westloc,westpsi)
+                    makemarker(eastloc,eastpsi)
+                    makemarker(northloc,northpsi)
+                    makemarker(southloc,southpsi)
+                    makemarker(centralloc,centralpsi)
+                })
+
+                function color(psi){
+                    if (psi<=55){
+                        return "green"
+                    }
+                    else if (psi<=150){
+                        return "yellow"
+                    }
+                    else if (psi<=250){
+                        return "orange"
+                    }
+                    else{
+                        return "red"
+                    }
+                }
+
+                function makemarker(loc,psi){
+                var circle_marker = L.circleMarker([loc.latitude, loc.longitude], {
+                    radius: 40,
+                    color: 'grey',
+                    fillColor: color(psi),
+                    fillOpacity: 0.5
+                })
+                    .addTo(map);
+
+                var val = L.divIcon({
+                    className: 'val',
+                    html: psi,
+                    iconAnchor: [10, 10],
+
+                })
+
+                L.marker([loc.latitude, loc.longitude], { icon: val }).addTo(map);
+
+                    
+            }
+
+
+
+
 </script>
 </html>
